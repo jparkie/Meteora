@@ -1,0 +1,5 @@
+resolvers += "Typesafe Repository"   at "http://repo.typesafe.com/typesafe/releases/"
+resolvers += "Sonatype Releases"     at "https://oss.sonatype.org/content/repositories/releases/"
+resolvers += "Sonatype OSS Releases" at "https://oss.sonatype.org/service/local/staging/deploy/maven2"
+
+addSbtPlugin("org.scalariform"   % "sbt-scalariform" % "1.6.0")
