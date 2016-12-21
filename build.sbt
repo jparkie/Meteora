@@ -25,6 +25,7 @@ crossScalaVersions := Seq("2.10.6", "2.11.8")
   */
 // Versions:
 val AkkaVersion      = "2.4.10"
+val ChillAkkaVersion = "0.8.1"
 val GuavaVersion     = "19.0"
 val RocksDBVersion   = "4.11.2"
 val ScalaTestVersion = "3.0.0"
@@ -38,6 +39,7 @@ val akkaHttpSprayJson = "com.typesafe.akka" %% "akka-http-spray-json-experimenta
 val akkaRemote        = "com.typesafe.akka" %% "akka-remote"                       % AkkaVersion
 val akkaStream        = "com.typesafe.akka" %% "akka-stream"                       % AkkaVersion
 val akkaTestKit       = "com.typesafe.akka" %% "akka-testkit"                      % AkkaVersion % "test"
+val chillAkka         = "com.twitter"       %% "chill-akka"                        % ChillAkkaVersion
 val guava             = "com.google.guava"  %  "guava"                             % GuavaVersion
 val rocksDB           = "org.rocksdb"       %  "rocksdbjni"                        % RocksDBVersion
 val scalaTest         = "org.scalatest"     %% "scalatest"                         % ScalaTestVersion % "test"
@@ -51,6 +53,7 @@ libraryDependencies ++= Seq(
   akkaRemote,
   akkaStream,
   akkaTestKit,
+  chillAkka,
   guava,
   rocksDB,
   scalaTest)
