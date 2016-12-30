@@ -114,27 +114,31 @@ trait RocksDBStore extends Store with RocksDBStoreBase {
 
   override def tokens(tokenRange: MeteoraTokenRange): Source[MeteoraToken, NotUsed] = {
     val cfHandle = internalCFHandle(tokenRange)
+    val rocksSnapshot = rocksDB.getSnapshot
     val rocksIterator = rocksDB.newIterator(cfHandle)
-    val rocksSource = Source.fromGraph(new RangedRocksDBTokenSource(rocksIterator, tokenRange))
+    val rocksSource = Source.fromGraph(new RangedRocksDBTokenSource(rocksDB, rocksSnapshot, rocksIterator, tokenRange))
     rocksSource
   }
 
   override def entries(tokenRange: MeteoraTokenRange): Source[MeteoraEntry, NotUsed] = {
     val cfHandle = internalCFHandle(tokenRange)
+    val rocksSnapshot = rocksDB.getSnapshot
     val rocksIterator = rocksDB.newIterator(cfHandle)
-    val rocksSource = Source.fromGraph(new RangedRocksDBEntrySource(rocksIterator, tokenRange))
+    val rocksSource = Source.fromGraph(new RangedRocksDBEntrySource(rocksDB, rocksSnapshot, rocksIterator, tokenRange))
     rocksSource
   }
 
   override def tokens(): Source[MeteoraToken, NotUsed] = {
+    val rocksSnapshot = rocksDB.getSnapshot
     val rocksIterator = rocksDB.newIterator()
-    val rocksSource = Source.fromGraph(new RocksDBTokenSource(rocksIterator))
+    val rocksSource = Source.fromGraph(new RocksDBTokenSource(rocksDB, rocksSnapshot, rocksIterator))
     rocksSource
   }
 
   override def entries(): Source[MeteoraEntry, NotUsed] = {
+    val rocksSnapshot = rocksDB.getSnapshot
     val rocksIterator = rocksDB.newIterator()
-    val rocksSource = Source.fromGraph(new RocksDBEntrySource(rocksIterator))
+    val rocksSource = Source.fromGraph(new RocksDBEntrySource(rocksDB, rocksSnapshot, rocksIterator))
     rocksSource
   }
 

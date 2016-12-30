@@ -85,6 +85,8 @@ trait RocksDBStoreBase extends StoreBase { this: RocksDBStore =>
   }
 
   protected trait RocksIteratorGraphStage[T] extends GraphStage[SourceShape[T]] {
+    val rocksDB: RocksDB
+    val rocksSnapshot: Snapshot
     val rocksIterator: RocksIterator
 
     def preStartSeek(): Unit
@@ -109,6 +111,8 @@ trait RocksDBStoreBase extends StoreBase { this: RocksDBStore =>
         @scala.throws[Exception](classOf[Exception])
         override def postStop(): Unit = {
           rocksIterator.close()
+          rocksDB.releaseSnapshot(rocksSnapshot)
+          rocksSnapshot.close()
           super.postStop()
         }
 
@@ -126,7 +130,11 @@ trait RocksDBStoreBase extends StoreBase { this: RocksDBStore =>
     }
   }
 
-  protected class RocksDBTokenSource(val rocksIterator: RocksIterator) extends RocksIteratorGraphStage[MeteoraToken] {
+  protected class RocksDBTokenSource(
+    val rocksDB:       RocksDB,
+    val rocksSnapshot: Snapshot,
+    val rocksIterator: RocksIterator
+  ) extends RocksIteratorGraphStage[MeteoraToken] {
     override def preStartSeek(): Unit = {
       rocksIterator.seekToFirst()
     }
@@ -143,7 +151,11 @@ trait RocksDBStoreBase extends StoreBase { this: RocksDBStore =>
     override val out: Outlet[MeteoraToken] = Outlet("RocksDBTokenSource")
   }
 
-  protected class RocksDBEntrySource(val rocksIterator: RocksIterator) extends RocksIteratorGraphStage[MeteoraEntry] {
+  protected class RocksDBEntrySource(
+    val rocksDB:       RocksDB,
+    val rocksSnapshot: Snapshot,
+    val rocksIterator: RocksIterator
+  ) extends RocksIteratorGraphStage[MeteoraEntry] {
     override def preStartSeek(): Unit = {
       rocksIterator.seekToFirst()
     }
@@ -164,9 +176,11 @@ trait RocksDBStoreBase extends StoreBase { this: RocksDBStore =>
   }
 
   protected class RangedRocksDBTokenSource(
+    rocksDB:       RocksDB,
+    rocksSnapshot: Snapshot,
     rocksIterator: RocksIterator,
     tokenRange:    MeteoraTokenRange
-  ) extends RocksDBTokenSource(rocksIterator) {
+  ) extends RocksDBTokenSource(rocksDB, rocksSnapshot, rocksIterator) {
     val inclusiveMinBytes = fromMeteoraToken(tokenRange.inclusiveMin)
     val exclusiveMaxBytes = fromMeteoraToken(tokenRange.exclusiveMax)
 
@@ -182,9 +196,11 @@ trait RocksDBStoreBase extends StoreBase { this: RocksDBStore =>
   }
 
   protected class RangedRocksDBEntrySource(
+    rocksDB:       RocksDB,
+    rocksSnapshot: Snapshot,
     rocksIterator: RocksIterator,
     tokenRange:    MeteoraTokenRange
-  ) extends RocksDBEntrySource(rocksIterator) {
+  ) extends RocksDBEntrySource(rocksDB, rocksSnapshot, rocksIterator) {
     val inclusiveMinBytes = fromMeteoraToken(tokenRange.inclusiveMin)
     val exclusiveMaxBytes = fromMeteoraToken(tokenRange.exclusiveMax)
 
